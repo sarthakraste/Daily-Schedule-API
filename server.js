@@ -28,6 +28,13 @@ else if (queryparams.hasOwnProperty('completed') && queryparams.completed=='fals
 	filtered=_.where(todos,{completed:false});
 }
 
+if(queryparams.hasOwnProperty('q') && queryparams.q.length > 0) {
+	filtered=_.filter(filtered, function(todo) {
+
+return todo.description.toLowerCase().indexOf(queryparams.q.toLowerCase()) > -1;
+	});
+}
+
 res.json(filtered);
 
 });
