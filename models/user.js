@@ -76,7 +76,38 @@ reject();
 
 });
 
+},
+
+findByToken: function (token) {
+
+return new Promise(function (resolve, reject) {
+try {
+var decjwt = jwt.verify(token, 'qwerty098');
+var bytes = crypto.AES.decrypt(decjwt.token, 'abc123!@#!');
+var tokendata = JSON.parse(bytes.toString(crypto.enc.Utf8));
+
+user.findById(tokendata.id).then(function (user) {
+if (user) {
+	resolve(user);
+
+} else {
+
+	reject();
 }
+
+}, function (e) {
+
+reject();
+
+});
+
+
+} catch(e) {
+	reject();
+}
+});
+} 
+
 
 },
 instanceMethods: {

@@ -3,6 +3,7 @@ var bodyparser=require('body-parser');
 var _=require('underscore');
 var db = require('./db.js');
 var bcrypt= require('bcryptjs');
+var middleware= require('./middleware.js')(db);
 
 
 var app = express();
@@ -20,7 +21,7 @@ res.send('Todo API Root');
 
 
 
-app.get('/todos', function (req,res) {
+app.get('/todos',middleware.requireAuthentication, function (req,res) {
 	var query = req.query;
 	var where = {};
 	
@@ -52,7 +53,7 @@ res.status(500).send();
 
 });
 
-app.get('/todos/:id', function (req,res){
+app.get('/todos/:id',middleware.requireAuthentication ,function (req,res){
 	var todoid = parseInt(req.params.id,10);
 
 	db.todo.findById(todoid).then( function (todo) {
@@ -69,7 +70,7 @@ app.get('/todos/:id', function (req,res){
 });
 
 
- app.post('/todos', function (req, res){
+ app.post('/todos',middleware.requireAuthentication, function (req, res){
 var body = req.body;
 body=_.pick(body, 'description', 'completed')
 
@@ -81,7 +82,7 @@ res.json(todo.toJSON());
 });
  });
 
-app.delete('/todos/:id', function (req,res){
+app.delete('/todos/:id',middleware.requireAuthentication, function (req,res){
 var todoid = parseInt(req.params.id,10);
 
 db.todo.destroy({
@@ -106,7 +107,7 @@ res.status(500).send();
 });
 
 //put
-app.put('/todos/:id', function (req,res){
+app.put('/todos/:id',middleware.requireAuthentication, function (req,res){
 	var todoid = parseInt(req.params.id,10);
 	//var matchedtodo=_.findWhere(todos, {id:todoid});
 var body = req.body;
@@ -163,11 +164,13 @@ body=_.pick(body, 'email', 'password');
 db.user.auth(body).then(function (user) {
 	var token = user.generateToken('authentication');
 	if (token) {
-	res.header('Authentication', token).json(user.toPublicJSON());
+	res.header('Authentication',token).json(user.toPublicJSON());
       } else {
-      	res.status(401).send();
+      	//console.error(e);
+      	  	res.status(401).send();
       }
 }, function() {
+	//console.error(e);
 res.status(401).send();
 
 });
