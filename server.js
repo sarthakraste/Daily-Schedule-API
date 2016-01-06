@@ -107,30 +107,38 @@ res.status(500).send();
 //put
 app.put('/todos/:id', function (req,res){
 	var todoid = parseInt(req.params.id,10);
-	var matchedtodo=_.findWhere(todos, {id:todoid});
+	//var matchedtodo=_.findWhere(todos, {id:todoid});
 var body = req.body;
 body=_.pick(body, 'description', 'completed');
-var validattr = {}
-
-if (!matchedtodo){
+var attr = {};
 
 
-	return res.status(404).send();
+
+if(body.hasOwnProperty('completed')) {
+attr.completed=body.completed;
+} 
+
+if(body.hasOwnProperty('description')) {
+	attr.description=body.description;
 }
 
-if(body.hasOwnProperty('completed') && _.isBoolean(body.completed)) {
-	validattr.completed=body.completed;
-} else if (body.hasOwnProperty('completed')) {
-	return res.status(400).send();
-}
-if(body.hasOwnProperty('description') && _.isString(body.description) && body.description.trim().length > 0 ) {
-	validattr.description=body.description;
-} else if (body.hasOwnProperty('description')) {
-	return res.status(400).send();
+db.todo.findById(todoid).then(function (todo) {
+if(todo) {
+todo.update(attr).then(function (todo) {
+res.json(todo.toJSON());
+},function (e) {
+
+	res.status(400).json(e);
+});
+} else {
+	res.status(404).send();
 }
 
-_.extend(matchedtodo, validattr);
-res.json(matchedtodo);
+}, function() {
+	res.status(500).send();
+
+});
+
 });
 
 db.seq.sync().then(function () {
