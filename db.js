@@ -17,7 +17,8 @@ seq = new sequelize(process.env.DATABASE_URL, {
 });
 }
 var db = {};
-db.todo = seq.import(__dirname + '/models/todo.js')
-db.seq= seq;
+db.todo = seq.import(__dirname + '/models/todo.js');
+db.user = seq.import(__dirname + '/models/user.js');
+db.seq = seq;
 db.sequelize= sequelize;
 module.exports = db;
