@@ -76,10 +76,20 @@ body=_.pick(body, 'description', 'completed')
 
 
 db.todo.create(body).then(function (todo) {
+req.user.addTodo(todo).then(function () {
+return todo.reload();
+
+}).then(function (todo) {
+  
 res.json(todo.toJSON());
+
+});
+
+//res.json(todo.toJSON());
 }, function(e) {
 	res.status(400).json(e);
 });
+
  });
 
 app.delete('/todos/:id',middleware.requireAuthentication, function (req,res){

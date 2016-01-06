@@ -21,4 +21,7 @@ db.todo = seq.import(__dirname + '/models/todo.js');
 db.user = seq.import(__dirname + '/models/user.js');
 db.seq = seq;
 db.sequelize= sequelize;
+
+db.todo.belongsTo(db.user);
+db.user.hasMany(db.todo);
 module.exports = db;
