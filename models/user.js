@@ -1,5 +1,7 @@
 var bcrypt= require('bcryptjs');
 var _= require('underscore');
+var crypto= require('crypto-js');
+var jwt= require('jsonwebtoken');
 module.exports = function(seq, DataTypes) {
 var user = seq.define('user', {
 
@@ -50,7 +52,7 @@ hooks: {
 
 classMethods: {
 auth: function (body) {
-return new Promise(function (resolve,reject) {
+return new Promise(function (resolve, reject) {
 if(typeof body.email!=='string' || typeof body.password!== 'string') {
 	return reject();
 }
@@ -82,7 +84,28 @@ toPublicJSON : function () {
 
 	var json = this.toJSON();
 	return _.pick(json, 'id','email','updatedAt','createdAt');
+},
+
+generateToken:function(type) {
+
+if(!_.isString(type)) {
+	return undefined;
 }
+
+try {
+	var stringdata= JSON.stringify({id: this.get('id'), type: type});
+var encdata= crypto.AES.encrypt(stringdata, 'abc123!@#!').toString();
+var token = jwt.sign({
+	token: encdata
+}, 'qwerty098');
+return token;
+
+  } catch (e) {
+  	console.error(e);
+return undefined;
+
+  }
+ }
 
 
 }
