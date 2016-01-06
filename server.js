@@ -47,24 +47,7 @@ res.status(500).send();
 });
 
 
-	//var filtered = todos
-//if(queryparams.hasOwnProperty('completed') && queryparams.completed==='true') {
-//	filtered=_.where(todos,{completed:true});
-//}
-//else if (queryparams.hasOwnProperty('completed') && queryparams.completed=='false') {
-
-//	filtered=_.where(todos,{completed:false});
-//}
-
-//if(queryparams.hasOwnProperty('q') && queryparams.q.length > 0) {
-//	filtered=_.filter(filtered, function(todo) {
-
-//return todo.description.toLowerCase().indexOf(queryparams.q.toLowerCase()) > -1;
-
-//	});
-//}
-
-//res.json(filtered);
+	
 
 });
 
@@ -99,16 +82,26 @@ res.json(todo.toJSON());
 
 app.delete('/todos/:id', function (req,res){
 var todoid = parseInt(req.params.id,10);
-	var matchedtodo=_.findWhere(todos, {id:todoid});
-if(!matchedtodo){
 
-	res.status(404).json({"error":"No todo found"})
-} else {
-todos=_.without(todos,matchedtodo);
-
-
-res.json(matchedtodo);
+db.todo.destroy({
+where: {
+id: todoid
 }
+}).then(function (rowsdel) {
+if(rowsdel===0) {
+
+	res.status(404).json({
+
+		error: 'No todo found'
+	});
+} else {
+	//console.log(todo);
+	res.status(204).send();
+}
+
+}, function () {
+res.status(500).send();	
+});
 });
 
 //put
