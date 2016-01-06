@@ -2,6 +2,7 @@ var express = require('express');
 var bodyparser=require('body-parser');
 var _=require('underscore');
 var db = require('./db.js');
+var bcrypt= require('bcryptjs');
 
 
 var app = express();
@@ -153,6 +154,21 @@ res.json(user.toPublicJSON());
 	res.status(400).json(e);
 });
  });
+
+
+app.post('/users/login', function (req,res){
+var body = req.body;
+body=_.pick(body, 'email', 'password');
+
+db.user.auth(body).then(function (user) {
+	res.json(user.toPublicJSON());
+}, function() {
+res.status(401).send();
+
+});
+
+
+});
 
 db.seq.sync().then(function () {
 app.listen(PORT, function () {
