@@ -18,7 +18,17 @@ res.send('Todo API Root');
 
 
 app.get('/todos', function (req,res) {
-res.json(todos)
+	var queryparams = req.query;
+	var filtered = todos
+if(queryparams.hasOwnProperty('completed') && queryparams.completed==='true') {
+	filtered=_.where(todos,{completed:true});
+}
+else if (queryparams.hasOwnProperty('completed') && queryparams.completed=='false') {
+
+	filtered=_.where(todos,{completed:false});
+}
+
+res.json(filtered);
 
 });
 
