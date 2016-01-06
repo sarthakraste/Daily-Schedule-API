@@ -1,6 +1,8 @@
 var express = require('express');
 var bodyparser=require('body-parser');
 var _=require('underscore');
+var db = require('./db.js');
+
 
 var app = express();
 
@@ -32,6 +34,7 @@ if(queryparams.hasOwnProperty('q') && queryparams.q.length > 0) {
 	filtered=_.filter(filtered, function(todo) {
 
 return todo.description.toLowerCase().indexOf(queryparams.q.toLowerCase()) > -1;
+
 	});
 }
 
@@ -57,18 +60,29 @@ res.json(matchedtodo);
  app.post('/todos', function (req, res){
 var body = req.body;
 body=_.pick(body, 'description', 'completed')
-if (!_.isBoolean(body.completed) || !_.isString(body.description) || body.description.trim().length === 0) {
 
-	return res.status(404).send();
-}
-body.description=body.description.trim();
-body.id=todonextid;
-todonextid++;
 
-todos.push(body);
+db.todo.create(body).then(function (todo) {
+res.json(todo.toJSON());
+}, function(e) {
+	res.status(400).json(e);
+});
+
+
+
+
+//if (!_.isBoolean(body.completed) || !_.isString(body.description) || body.description.trim().length === 0) {
+
+//	return res.status(404).send();
+//}
+//body.description=body.description.trim();
+//body.id=todonextid;
+//todonextid++;
+
+//todos.push(body);
 //console.log('description: ' +  body.description);
  
-res.json(body);
+//res.json(body);
  });
 
 app.delete('/todos/:id', function (req,res){
@@ -114,8 +128,11 @@ _.extend(matchedtodo, validattr);
 res.json(matchedtodo);
 });
 
-
+db.seq.sync().then(function () {
 app.listen(PORT, function () {
 
 	console.log('Express listening on port ' + PORT + '!');
 });
+
+});
+
