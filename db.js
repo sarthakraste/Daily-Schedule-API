@@ -1,5 +1,6 @@
 var sequelize = require('sequelize');
 
+
 var env= process.env.NODE_ENV || 'development';
 var seq
 if(env==='production') {
@@ -19,6 +20,7 @@ seq = new sequelize(process.env.DATABASE_URL, {
 var db = {};
 db.todo = seq.import(__dirname + '/models/todo.js');
 db.user = seq.import(__dirname + '/models/user.js');
+db.token = seq.import(__dirname + '/models/token.js');
 db.seq = seq;
 db.sequelize= sequelize;
 

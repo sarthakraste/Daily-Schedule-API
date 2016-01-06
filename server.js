@@ -188,20 +188,37 @@ res.json(user.toPublicJSON());
 app.post('/users/login', function (req,res){
 var body = req.body;
 body=_.pick(body, 'email', 'password');
+var userInstance;
 
 db.user.auth(body).then(function (user) {
 	var token = user.generateToken('authentication');
-	if (token) {
-	res.header('Authentication',token).json(user.toPublicJSON());
-      } else {
-      	//console.error(e);
-      	  	res.status(401).send();
-      }
-}, function() {
-	//console.error(e);
+	userInstance=user;
+	return db.token.create({
+token:token
+	});
+
+
+	
+}).then(function (tokenInstance) {
+res.header('Authentication',tokenInstance.get('token')).json(userInstance.toPublicJSON());
+ }).catch(function() {
+	
 res.status(401).send();
 
 });
+
+
+});
+
+
+app.delete('/users/login', middleware.requireAuthentication, function (req,res){
+req.token.destroy().then(function () {
+res.status(204).send();
+
+}).catch(function() {
+
+re.status(500).send();
+})
 
 
 });
