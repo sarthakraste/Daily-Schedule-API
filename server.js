@@ -68,6 +68,34 @@ res.json(matchedtodo);
 }
 });
 
+//put
+app.put('/todos/:id', function (req,res){
+	var todoid = parseInt(req.params.id,10);
+	var matchedtodo=_.findWhere(todos, {id:todoid});
+var body = req.body;
+body=_.pick(body, 'description', 'completed');
+var validattr = {}
+
+if (!matchedtodo){
+
+
+	return res.status(404).send();
+}
+
+if(body.hasOwnProperty('completed') && _.isBoolean(body.completed)) {
+	validattr.completed=body.completed;
+} else if (body.hasOwnProperty('completed')) {
+	return res.status(400).send();
+}
+if(body.hasOwnProperty('description') && _.isString(body.description) && body.description.trim().length > 0 ) {
+	validattr.description=body.description;
+} else if (body.hasOwnProperty('description')) {
+	return res.status(400).send();
+}
+
+_.extend(matchedtodo, validattr);
+res.json(matchedtodo);
+});
 
 
 app.listen(PORT, function () {
